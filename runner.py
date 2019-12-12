@@ -14,7 +14,7 @@ def main():
 
     log_calculator = LogFileCalculator(url=url, monitor=monitor, parsed_log=parsed_log)
     distance_report = log_calculator.run_calculation()
-    distance_report.to_csv(RESULTS_PATH + '/' + f'distance_report_{postfix}.csv')
+    distance_report.to_csv(RESULTS_PATH + '/' + f'distance_report_{postfix}.csv', index=False)
 
     drawer = DrawMap(monitor=monitor, parsed_log=parsed_log, postfix=postfix)
     drawer.draw_map()

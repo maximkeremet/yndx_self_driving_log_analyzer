@@ -7,6 +7,11 @@ from config import LOG_NAME, MONITORING_PATH
 
 
 def get_url() -> str:
+    """
+    A function to get url fom user to download log
+
+    :return: string url
+    """
     parser = ArgumentParser()
 
     parser.add_argument('--url',
@@ -20,6 +25,11 @@ def get_url() -> str:
 
 def initialize_monitoring(monitor_name: str = LOG_NAME,
                           logging_level=logging.INFO) -> logging.Logger:
+    """
+    A function to initialize logging, both - stdout and text file.
+
+    :return: logging object (named `monitor` in order not to confuse with downloaded car log)
+    """
 
     root_dir = os.path.abspath(os.path.dirname(__file__))
     date_postfix = datetime.today().strftime('%Y-%m-%d')

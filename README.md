@@ -29,14 +29,18 @@ as a text file with corresponding date and unix ts.
 
 **Distance report:**
 
-| mode| distance, m |
-| ----|-------------|
-|human| 266.2465 |
-|autopilot|2580.0803 |
+| mode| distance, m | perc.|
+| ----|-------------|------|
+|human| 266.2465 | 9.35 |
+|autopilot|2580.0803 | 90.65|
 
 **Map:**
 ![alt text](pics/map_screenshot.png)
 
 ## Further development
 
-- 
+- improve polygon parsing from Nominatim geocoder in order to 
+support other locations properly
+- improve logging format for bigger log files
+- optimize overall performance
+
