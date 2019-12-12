@@ -1,10 +1,8 @@
 import os
 from datetime import datetime
 from argparse import ArgumentParser
-from typing import Dict
 
 import logging
-from logging.handlers import TimedRotatingFileHandler
 from config import LOG_NAME, MONITORING_PATH
 
 
