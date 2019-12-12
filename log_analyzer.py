@@ -136,7 +136,10 @@ class LogFileCalculator(LogFileParser):
 
     @staticmethod
     def generate_report(calculated_distances: Dict) -> pd.DataFrame:
-        return pd.DataFrame(calculated_distances.items(), columns=['mode', 'distance, m'])
+
+        report = pd.DataFrame(calculated_distances.items(), columns=['mode', 'distance, m'])
+        report['perc.'] = round((report.iloc[:, 1] / report.iloc[:, 1].sum()) * 100, 2)
+        return report
 
     def get_placeholder_values(self, preprocessed_log: Dict) -> List:
         """
@@ -164,6 +167,17 @@ class LogFileCalculator(LogFileParser):
         return list(start_state.values())
 
     def process_log(self, log: Dict, placeholder_switcher: int, placeholder_geo: List) -> Dict:
+        """
+        Main preprocessing function for raw downloaded file.
+        Reads events in the preprocessed log, checks current autopilot mode, calculates distances
+        and updates placeholders upon changes.
+        Generates detailed logging information.
+
+        :param log: preprocessed log in dict format
+        :param placeholder_switcher: current switcher mode state variable
+        :param placeholder_geo: current geo position variable
+        :return: dictionary with calculated distance for autopilot and human modes
+        """
 
         line_cnt = 0
         distance_counter = {'human': 0, 'autopilot': 0}  # human is 0, autopilot is 1 (checked )
@@ -205,6 +219,11 @@ class LogFileCalculator(LogFileParser):
         return distance_counter
 
     def run_calculation(self) -> pd.DataFrame:
+        """
+         a runner function for the class
+
+         :return: a pandas dataframe with calculated distance covered by the cat in autopilot and human modes
+         """
 
         initial_switcher, initial_geo_coords = self.get_placeholder_values(self.parsed_log)
 
@@ -219,7 +238,7 @@ class LogFileCalculator(LogFileParser):
         return distance_report
 
 
-class DrawMap():
+class DrawMap:
 
     def __init__(self, monitor: logging.Logger, parsed_log: Dict, postfix: str):
         self.monitor = monitor
@@ -230,6 +249,11 @@ class DrawMap():
         self.parsed_log = parsed_log
 
     def get_car_route(self) -> pd.DataFrame:
+        """
+        Processes log, getting only coordinates from lines where they are present ~ car route
+
+        :return: pandas dataframe with lat, long coordinates
+        """
 
         parsed_coords = []
         for k, v in self.parsed_log.items():
@@ -245,6 +269,12 @@ class DrawMap():
         return df
 
     def get_polygon_coordinates(self) -> Tuple[List, List]:
+        """
+        Downloads a json with geospartial data given a string location (e.g. city like Las vegas)
+
+        :return: folium map object and saved html file
+        """
+
         polygon_query = f"https://nominatim.openstreetmap.org/" \
                         f"search?city={self.location.replace(' ', '+')}&polygon_geojson=1&format=json"
         r = requests.get(polygon_query)
@@ -260,6 +290,11 @@ class DrawMap():
         return polygon_lats, polygon_longs
 
     def construct_polygon(self, polygon_longs: List, polygon_lats: List) -> gpd.GeoDataFrame:
+        """
+        Constructs a dataframe suitable for folium to plot as polygon of the area
+        :return: geopandas geodataframe
+        """
+
         polygon_geom = Polygon(zip(polygon_longs, polygon_lats))
 
         crs = {'init': 'epsg:4326'}
@@ -276,22 +311,11 @@ class DrawMap():
                  plot_heatmap=False, heat_map_weights_col=None,
                  heat_map_weights_normalize=True, heat_map_radius=10,
                  save=True, file_name='map.html'):
-        """Creates a map given a dataframe of points. Can also produce a heatmap overlay
+        """
+        Creates a map given a dataframe of points and plot a heatmap overlay.
+        Can also plot a polygon of plots for the area.
 
-        Arg:
-            df: dataframe containing points to maps
-            lat_col: Column containing latitude (string)
-            lon_col: Column containing longitude (string)
-            zoom_start: Integer representing the initial zoom of the map
-            plot_points: Add points to map (boolean)
-            pt_radius: Size of each point
-            draw_heatmap: Add heatmap to map (boolean)
-            heat_map_weights_col: Column containing heatmap weights
-            heat_map_weights_normalize: Normalize heatmap weights (boolean)
-            heat_map_radius: Size of heatmap point
-
-        Returns:
-            folium map object
+        :return: folium map object and saved html file
         """
         # center map in the middle of points center in
         middle_lat = df[lat_col].median()
@@ -340,6 +364,10 @@ class DrawMap():
             return curr_map
 
     def draw_map(self):
+        """
+        a runner function for the class
+        :return:
+        """
 
         polygon_lats, polygon_longs = self.get_polygon_coordinates()
         car_route = self.get_car_route()
