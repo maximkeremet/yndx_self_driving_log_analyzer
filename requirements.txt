@@ -2,5 +2,5 @@ folium==0.10.1
 geopandas==0.6.2
 geopy==1.20.0
 pandas==0.25.1
-requests==2.22.0
+requests==2.31.0
 Shapely==1.6.4.post2
